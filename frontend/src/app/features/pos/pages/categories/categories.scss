@@ -1,0 +1,165 @@
+.admin-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f3f6fb;
+  color: #0f172a;
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: #64748b;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      background: #0f172a;
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  }
+
+  table {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+  }
+
+  th,
+  td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+
+  th {
+    color: #64748b;
+    font-size: 13px;
+  }
+}
+
+.color-dot {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.badge {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+
+  &.off {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .danger {
+    background: #ef4444;
+    color: white;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 520px;
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+
+  h3 {
+    margin-top: 0;
+  }
+
+  label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: 700;
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  input[type='color'] {
+    height: 48px;
+    padding: 4px;
+  }
+
+  .checks {
+    margin-top: 12px;
+
+    input {
+      width: auto;
+      margin-right: 8px;
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #22c55e;
+      color: white;
+    }
+  }
+}

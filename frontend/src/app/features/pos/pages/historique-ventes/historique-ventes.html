@@ -1,0 +1,139 @@
+<div class="history-page">
+  <div class="history-header">
+    <div>
+      <h2>Historique ventes</h2>
+
+      @if (role === 'CAISSIER') {
+        <p>Ventes de votre session ouverte</p>
+      } @else {
+        <p>Toutes les ventes</p>
+      }
+    </div>
+
+    <button (click)="load()">Actualiser</button>
+  </div>
+
+  @if (loading) {
+    <div class="panel">Chargement...</div>
+  } @else {
+    <div class="sales-list">
+      @for (vente of ventes; track vente.id) {
+        <button class="sale-card" (click)="voirTicket(vente)">
+          <div>
+            <strong>{{ vente.reference }}</strong>
+            <small>{{ vente.created_at | date: 'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+
+          <div>
+            <b>{{ vente.montant_total | number }} Ar</b>
+            <small>{{ vente.mode_paiement }}</small>
+          </div>
+
+          <span [class.cancelled]="vente.statut === 'ANNULE'">
+            {{ vente.statut }}
+          </span>
+        </button>
+      } @empty {
+        <div class="panel">Aucune vente trouvée</div>
+      }
+    </div>
+  }
+</div>
+
+@if (selectedVente) {
+  <div class="ticket-modal-backdrop">
+    <div class="ticket-modal">
+      <div class="ticket-actions no-print">
+        @if (peutImprimer()) {
+          <button (click)="imprimer()">Imprimer</button>
+        } @else {
+          <span class="warning">
+            Impression non autorisée après clôture
+          </span>
+        }
+
+        <button (click)="fermerTicket()">Fermer</button>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <h2>POS RESTO</h2>
+          <p>Copie ticket</p>
+          <small>
+            {{ selectedVente.created_at | date: 'dd/MM/yyyy HH:mm' }}
+          </small>
+        </div>
+
+        <div class="ticket-info">
+          <p><strong>Réf :</strong> {{ selectedVente.reference }}</p>
+          <p><strong>Client :</strong> {{ selectedVente.client }}</p>
+          <p><strong>Paiement :</strong> {{ selectedVente.mode_paiement }}</p>
+        </div>
+
+        <div class="ticket-separator"></div>
+
+        <div class="ticket-lines">
+          @for (ligne of selectedVente.lignes; track ligne.id) {
+            <div class="ticket-line">
+              <div>
+                <strong>{{ ligne.ficheTechnique?.nom }}</strong>
+                <small>
+                  {{ ligne.quantite }} x
+                  {{ ligne.prix_unitaire | number }} Ar
+                </small>
+              </div>
+
+              <span>{{ ligne.montant | number }} Ar</span>
+            </div>
+          }
+        </div>
+
+        <div class="ticket-separator"></div>
+
+        <div class="ticket-total">
+          <p>
+            <span>Total</span>
+            <strong>{{ selectedVente.montant_total | number }} Ar</strong>
+          </p>
+
+          <p>
+            <span>Payé</span>
+            <strong>{{ selectedVente.montant_paye | number }} Ar</strong>
+          </p>
+
+          <p>
+            <span>Rendu</span>
+            <strong>{{ selectedVente.rendu | number }} Ar</strong>
+          </p>
+        </div>
+
+        @if (selectedVente.paiements?.length) {
+          <div class="ticket-separator"></div>
+
+          @for (p of selectedVente.paiements; track p.id) {
+            <p class="ticket-payment">
+              {{ p.mode }} : {{ p.montant | number }} Ar
+
+              @if (p.reference_transaction) {
+                <br />
+                <small>Réf : {{ p.reference_transaction }}</small>
+              }
+            </p>
+          }
+        }
+
+        @if (ticketQrCode) {
+          <div class="ticket-qr">
+            <img [src]="ticketQrCode" alt="QR" />
+            <small>Copie ticket</small>
+          </div>
+        }
+
+        <div class="ticket-footer">
+          <p>Merci pour votre achat</p>
+          <small>Duplicata</small>
+        </div>
+      </div>
+    </div>
+  </div>
+}

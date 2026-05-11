@@ -1,0 +1,96 @@
+.admin-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f3f6fb;
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      background: #0f172a;
+      color: white;
+      font-weight: 800;
+    }
+  }
+
+  table {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    border-collapse: collapse;
+    overflow: hidden;
+  }
+
+  th,
+  td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 520px;
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+
+  label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: 700;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .checks {
+    display: flex;
+    gap: 18px;
+    margin-top: 12px;
+
+    input {
+      width: auto;
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 800;
+    }
+
+    .primary {
+      background: #22c55e;
+      color: white;
+    }
+  }
+}

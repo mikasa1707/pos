@@ -1,0 +1,47 @@
+.pos-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  background: #f3f6fb;
+}
+
+.sidebar {
+  background: #0f172a;
+  color: white;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 13px 14px;
+    border-radius: 14px;
+    font-weight: 800;
+  }
+
+  a.active {
+    background: #22c55e;
+    color: white;
+  }
+}
+
+.content {
+  min-width: 0;
+  overflow: auto;
+}
+
+.logout {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 13px 14px;
+    border-radius: 14px;
+    font-weight: 800;
+    background-color: #e92222;
+    border: none;
+}

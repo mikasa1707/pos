@@ -1,0 +1,546 @@
+<div class="pos-page">
+  <section class="products-zone">
+    <div class="topbar">
+      <div>
+        <h2>Caisse POS</h2>
+        <p>{{ produitsFiltres.length }} produits disponibles</p>
+      </div>
+
+      @if (sessionCaisse) {
+        <div class="session-badge">
+          Session ouverte #{{ sessionCaisse.id }} — Fond :
+          {{ sessionCaisse.fond_caisse | number }} Ar
+        </div>
+      }
+
+      <input
+        type="text"
+        placeholder="Code ou nom du produit..."
+        [(ngModel)]="search"
+        (focus)="openKeyboard()"
+      />
+    </div>
+
+    <div class="orders-compact card border-0 shadow-sm rounded-4 mb-3">
+      <div class="card-body p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h6 class="fw-bold mb-0">Commandes ouvertes</h6>
+            <small class="text-muted">{{ commandesOuvertes.length }} commande(s)</small>
+          </div>
+
+          <button
+            class="btn btn-primary btn-sm rounded-pill px-3 fw-bold"
+            (click)="creerCommandeSansTable()"
+          >
+            Nouvelle commande
+          </button>
+        </div>
+
+        <div class="orders-row p-2">
+          @for (cmd of commandesOuvertes; track cmd.id) {
+            <button
+              class="order-mini"
+              [class.active]="selectedCommande?.id === cmd.id"
+              (click)="reprendreCommandeTable(cmd)"
+            >
+              <strong>{{ cmd.table?.nom || 'Sans table' }}</strong>
+              <span>{{ cmd.montant_total | number }} Ar</span>
+              <small>{{ cmd.lignes?.length || 0 }} art.</small>
+            </button>
+          } @empty {
+            <div class="text-muted small py-2">Aucune commande ouverte</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="categories">
+      @for (cat of categories; track cat) {
+        <button [class.active]="categorieActive === cat" (click)="categorieActive = cat">
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    @if (loading) {
+      <div class="loading">Chargement des produits...</div>
+    } @else {
+      <div class="products-grid">
+        @for (produit of produitsFiltres; track produit.id) {
+          <button class="product-card" (click)="ajouterProduit(produit)">
+            <small>{{ produit.reference }}</small>
+            <strong>{{ produit.nom }}</strong>
+            <span>{{ produit.categorie?.nom || 'Sans catégorie' }}</span>
+            <b>{{ produit.prix_vente | number }} Ar</b>
+          </button>
+        }
+      </div>
+    }
+  </section>
+  @if (panier.length || selectedCommande) {
+    <aside class="cart-zone">
+      <div class="cart-header">
+        <div>
+          <h3 class="mb-1">{{ panierTitle }}</h3>
+
+          @if (selectedCommande) {
+            <small class="text-white-50"> Commande : {{ selectedCommande.reference }} </small>
+          }
+        </div>
+
+        @if (selectedCommande) {
+          <button class="clear-btn" (click)="detacherTable()">Quitter</button>
+        } @else {
+          <button class="clear-btn" (click)="viderPanier()">Vider</button>
+        }
+      </div>
+
+      <div class="d-grid gap-2 mb-3">
+        <!-- <button
+          class="btn btn-outline-light rounded-pill fw-bold"
+          (click)="ouvrirSelectionTable('ATTACHER')"
+          [disabled]="!panier.length || !!selectedCommande"
+        >
+          Attacher à une table
+        </button> -->
+
+        <div class="d-flex gap-2">
+          <!-- <button
+            class="btn btn-light rounded-pill fw-bold flex-fill"
+            (click)="ouvrirSelectionTable('REPRENDRE')"
+          >
+            Reprendre
+          </button> -->
+
+          <button
+            class="btn btn-success rounded-pill fw-bold flex-fill"
+            (click)="ouvrirSelectionTable('NOUVELLE')"
+          >
+            Nouvelle
+          </button>
+          @if (selectedCommande) {
+            <button
+              class="tool-btn danger rounded-pill fw-bold flex-fill"
+              (click)="annulerCommandeOuverte()"
+            >
+              Annuler commande
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (selectedTable) {
+        <div class="table-badge">
+          <strong>Table : {{ selectedTable.nom }}</strong>
+          <span>{{ total | number }} Ar</span>
+        </div>
+      }
+
+      @if (selectedCommande && !selectedTable) {
+        <div class="table-badge">
+          <strong>Commande rapide</strong>
+          <span>{{ total | number }} Ar</span>
+        </div>
+      }
+
+      <div class="cart-lines">
+        @for (ligne of panier; track ligneKey(ligne)) {
+          <div class="cart-line">
+            <div class="line-info">
+              <strong>{{ ligne.nom }}</strong>
+              <small>{{ ligne.prix | number }} Ar</small>
+            </div>
+
+            <div class="qty">
+              <button (click)="moins(ligne)">-</button>
+              <span>{{ ligne.quantite }}</span>
+              <button (click)="plus(ligne)">+</button>
+            </div>
+
+            <strong>{{ ligne.montant | number }} Ar</strong>
+
+            <button class="delete" (click)="supprimer(ligne)">×</button>
+          </div>
+        } @empty {
+          <div class="empty">Aucun produit ajouté</div>
+        }
+      </div>
+
+      <div class="payment-box">
+        <div class="total-row">
+          <span>Total</span>
+          <strong>{{ total | number }} Ar</strong>
+        </div>
+
+        <button class="validate-btn" (click)="ouvrirPaiement()" [disabled]="!panier.length">
+          Régler
+        </button>
+      </div>
+    </aside>
+  }
+</div>
+
+@if (tableModalOpen) {
+  <div class="payment-modal-backdrop">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 rounded-5 shadow-lg overflow-hidden">
+        <div class="modal-header border-0 bg-dark text-white px-4 py-3">
+          <div>
+            <h2 class="fw-bold mb-1">
+              @switch (tableModalMode) {
+                @case ('ATTACHER') {
+                  Attacher le panier
+                }
+                @case ('REPRENDRE') {
+                  Reprendre une commande
+                }
+                @case ('NOUVELLE') {
+                  Nouvelle commande
+                }
+              }
+            </h2>
+
+            <p class="mb-0 text-light opacity-75">
+              Sélectionnez une table ou créez une commande rapide.
+            </p>
+          </div>
+
+          <button class="btn btn-danger rounded-pill px-4 fw-bold" (click)="tableModalOpen = false">
+            Fermer
+          </button>
+        </div>
+
+        <div class="modal-body bg-light p-4">
+          <div class="card border-0 shadow-sm rounded-4 mb-4 quick-order-card">
+            <div
+              class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3"
+            >
+              <div>
+                <h5 class="fw-bold mb-1">Commande sans table</h5>
+                <small class="text-muted">Client non attablé, takeaway ou attente paiement.</small>
+              </div>
+
+              <button
+                class="btn btn-primary btn-lg rounded-pill px-4 fw-bold"
+                (click)="creerCommandeSansTable()"
+              >
+                Créer
+              </button>
+            </div>
+          </div>
+
+          @if (commandesSansTable().length) {
+            <div class="mb-4">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="zone-dot"></div>
+                <h4 class="fw-bold mb-0">Commandes rapides ouvertes</h4>
+              </div>
+
+              <div class="row g-3">
+                @for (cmd of commandesSansTable(); track cmd.id) {
+                  <div class="col-xl-3 col-lg-4 col-md-6">
+                    <button
+                      class="btn w-100 p-0 border-0 bg-transparent"
+                      (click)="reprendreCommandeTable(cmd); tableModalOpen = false"
+                    >
+                      <div
+                        class="card h-100 border-0 rounded-4 shadow-sm quick-order-card"
+                        [class.table-selected]="selectedCommande?.id === cmd.id"
+                      >
+                        <div class="card-body text-start">
+                          <div class="d-flex justify-content-between align-items-start mb-3">
+                            <strong class="fs-5">Sans table</strong>
+                            <span class="badge text-bg-primary rounded-pill">Rapide</span>
+                          </div>
+
+                          <small class="text-muted d-block mb-3">{{ cmd.reference }}</small>
+
+                          <div class="fw-bold fs-4 text-primary">
+                            {{ cmd.montant_total | number }} Ar
+                          </div>
+
+                          <small class="text-muted">{{ cmd.lignes?.length || 0 }} article(s)</small>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @for (zone of zones; track zone) {
+            <div class="mb-4">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="zone-dot"></div>
+                <h4 class="fw-bold mb-0">{{ zone }}</h4>
+              </div>
+
+              <div class="row g-3">
+                @for (table of tablesByZone(zone); track table.id) {
+                  @let cmd = commandePourTable(table);
+
+                  <div class="col-xl-3 col-lg-4 col-md-6">
+                    <button
+                      class="btn w-100 p-0 border-0 bg-transparent"
+                      (click)="choisirTable(table)"
+                    >
+                      <div
+                        class="card table-card h-100 border-0 rounded-4 shadow-sm"
+                        [class.table-occupied]="!!cmd"
+                        [class.table-selected]="selectedTable?.id === table.id"
+                      >
+                        <div class="card-body text-start">
+                          <div class="d-flex justify-content-between align-items-start mb-3">
+                            <strong class="fs-5">{{ table.nom }}</strong>
+
+                            @if (cmd) {
+                              <span class="badge text-bg-danger rounded-pill">Occupée</span>
+                            } @else {
+                              <span class="badge text-bg-success rounded-pill">Libre</span>
+                            }
+                          </div>
+
+                          <small class="text-muted d-block mb-3">{{ table.code }}</small>
+
+                          @if (cmd) {
+                            <div class="fw-bold fs-4 text-danger">
+                              {{ cmd.montant_total | number }} Ar
+                            </div>
+
+                            <small class="text-muted"
+                              >{{ cmd.lignes?.length || 0 }} article(s)</small
+                            >
+                          } @else {
+                            <div class="fw-semibold text-success">Disponible</div>
+                          }
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (paymentModalOpen) {
+  <div class="payment-modal-backdrop">
+    <div class="payment-modal">
+      <div class="modal-header">
+        <h2>Règlement</h2>
+        <button (click)="annulerVente()">Annuler</button>
+      </div>
+
+      @if (selectedTable) {
+        <div class="table-payment-badge">Table : {{ selectedTable.nom }}</div>
+      }
+
+      @if (selectedCommande && !selectedTable) {
+        <div class="table-payment-badge">Commande rapide</div>
+      }
+
+      <div class="modal-total">
+        <span>Total à payer</span>
+        <strong>{{ total | number }} Ar</strong>
+      </div>
+
+      <label>Mode paiement</label>
+      <select [(ngModel)]="modePaiement">
+        <option value="ESPECE">Espèce</option>
+        <option value="MVOLA">MVola</option>
+        <option value="CARTE">Carte</option>
+      </select>
+
+      @if (modePaiement === 'MVOLA' || modePaiement === 'CARTE') {
+        <label>Référence transaction</label>
+        <input type="text" [(ngModel)]="referenceTransaction" placeholder="Référence paiement" />
+      }
+
+      <label>Montant payé</label>
+      <input type="number" [(ngModel)]="montantPaye" />
+
+      <div class="quick-money">
+        <button (click)="montantPaye = total">Exact</button>
+        <button (click)="addMoney(5000)">+5 000</button>
+        <button (click)="addMoney(10000)">+10 000</button>
+        <button (click)="addMoney(20000)">+20 000</button>
+      </div>
+
+      <div class="calculator">
+        @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track n) {
+          <button (click)="pressNumber(n)">{{ n }}</button>
+        }
+
+        <button (click)="clearMoney()">C</button>
+        <button (click)="pressNumber(0)">0</button>
+        <button (click)="backspaceMoney()">⌫</button>
+      </div>
+
+      <div class="rendu modal-rendu">
+        <span>Rendu</span>
+        <strong>{{ rendu | number }} Ar</strong>
+      </div>
+
+      @if (montantPaye < total) {
+        <small class="error">Montant insuffisant</small>
+      }
+
+      @if ((modePaiement === 'MVOLA' || modePaiement === 'CARTE') && !referenceTransaction.trim()) {
+        <small class="error">Référence obligatoire</small>
+      }
+
+      <button
+        class="validate-btn"
+        (click)="validerPaiement()"
+        [disabled]="
+          saving ||
+          montantPaye < total ||
+          ((modePaiement === 'MVOLA' || modePaiement === 'CARTE') && !referenceTransaction.trim())
+        "
+      >
+        {{ saving ? 'Validation...' : 'Valider paiement' }}
+      </button>
+    </div>
+  </div>
+}
+
+@if (keyboardOpen) {
+  <div class="virtual-keyboard">
+    <div class="keyboard-top">
+      <strong>Recherche : {{ search || '...' }}</strong>
+
+      <div>
+        <button class="danger" (click)="clearSearch()">Effacer</button>
+        <button (click)="closeKeyboard()">Fermer</button>
+      </div>
+    </div>
+
+    @for (row of keyboardRows; track row) {
+      <div class="keyboard-row">
+        @for (key of row; track key) {
+          <button (click)="pressKey(key)">
+            {{ key }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="keyboard-actions">
+      <button (click)="spaceKey()">Espace</button>
+      <button (click)="backspaceSearch()">⌫</button>
+    </div>
+  </div>
+}
+
+@if (ticketModalOpen && lastVente) {
+  <div class="ticket-modal-backdrop">
+    <div class="ticket-modal">
+      <div class="ticket-actions no-print">
+        <button (click)="imprimerTicket()">Imprimer</button>
+        <button (click)="fermerTicket()">Fermer</button>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <h2>POS RESTO</h2>
+          <p>Ticket de caisse</p>
+          <small>{{ lastVente.created_at | date: 'dd/MM/yyyy HH:mm' }}</small>
+        </div>
+
+        <div class="ticket-info">
+          <p><strong>Réf :</strong> {{ lastVente.reference }}</p>
+          <p><strong>Client :</strong> {{ lastVente.client }}</p>
+          <p><strong>Paiement :</strong> {{ lastVente.mode_paiement }}</p>
+        </div>
+
+        <div class="ticket-separator"></div>
+
+        <div class="ticket-lines">
+          @for (ligne of lastVente.lignes; track ligne.id) {
+            <div class="ticket-line">
+              <div>
+                <strong>{{ ligne.ficheTechnique.nom }}</strong>
+                <small>{{ ligne.quantite }} x {{ ligne.prix_unitaire | number }} Ar</small>
+              </div>
+
+              <span>{{ ligne.montant | number }} Ar</span>
+            </div>
+          }
+        </div>
+
+        <div class="ticket-separator"></div>
+
+        <div class="ticket-total">
+          <p>
+            <span>Total</span>
+            <strong>{{ lastVente.montant_total | number }} Ar</strong>
+          </p>
+
+          <p>
+            <span>Payé</span>
+            <strong>{{ lastVente.montant_paye | number }} Ar</strong>
+          </p>
+
+          <p>
+            <span>Rendu</span>
+            <strong>{{ lastVente.rendu | number }} Ar</strong>
+          </p>
+        </div>
+
+        @if (lastVente.paiements.length) {
+          <div class="ticket-separator"></div>
+
+          @for (p of lastVente.paiements; track p.id) {
+            <p class="ticket-payment">
+              {{ p.mode }} : {{ p.montant | number }} Ar
+
+              @if (p.reference_transaction) {
+                <br />
+                <small>Réf : {{ p.reference_transaction }}</small>
+              }
+            </p>
+          }
+        }
+
+        @if (ticketQrCode) {
+          <div class="ticket-qr">
+            <img [src]="ticketQrCode" alt="QR" />
+            <small>Scan ticket</small>
+          </div>
+        }
+
+        <div class="ticket-footer">
+          <p>Merci pour votre achat</p>
+          <small>Ticket généré automatiquement</small>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (sessionModalOpen) {
+  <div class="payment-modal-backdrop">
+    <div class="payment-modal">
+      <div class="modal-header">
+        <h2>Ouverture caisse</h2>
+      </div>
+
+      <label>Poste de caisse</label>
+      <select [(ngModel)]="posteCaisseId">
+        <option [ngValue]="1">BAR</option>
+        <option [ngValue]="2">SDT</option>
+      </select>
+
+      <label>Fond de caisse</label>
+      <input type="number" [(ngModel)]="fondCaisse" />
+
+      <button class="validate-btn" (click)="ouvrirSession()">Ouvrir la session</button>
+    </div>
+  </div>
+}

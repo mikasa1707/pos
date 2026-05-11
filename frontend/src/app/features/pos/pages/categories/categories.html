@@ -1,0 +1,92 @@
+<div class="admin-page">
+  <div class="head">
+    <div>
+      <h2>Catégories</h2>
+      <p>{{ items.length }} catégories</p>
+    </div>
+
+    <button (click)="openCreate()">+ Ajouter catégorie</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Ordre</th>
+        <th>Nom</th>
+        <th>Code</th>
+        <th>Couleur</th>
+        <th>Icône</th>
+        <th>Actif</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (item of items; track item.id) {
+        <tr>
+          <td>{{ item.ordre }}</td>
+          <td>
+            <strong>{{ item.nom }}</strong>
+          </td>
+          <td>{{ item.code }}</td>
+          <td>
+            <span
+              class="color-dot"
+              [style.background]="item.couleur"
+            ></span>
+            {{ item.couleur }}
+          </td>
+          <td>{{ item.icone }}</td>
+          <td>
+            <span class="badge" [class.off]="!item.actif">
+              {{ item.actif ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button (click)="openEdit(item)">Modifier</button>
+            <button class="danger" (click)="remove(item)">Désactiver</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7">Aucune catégorie</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (modalOpen) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h3>{{ selectedId ? 'Modifier catégorie' : 'Ajouter catégorie' }}</h3>
+
+      <label>Nom</label>
+      <input [(ngModel)]="form.nom" placeholder="Ex: Boissons" />
+
+      <label>Code</label>
+      <input [(ngModel)]="form.code" placeholder="Ex: BOISSONS" />
+
+      <label>Couleur</label>
+      <input type="color" [(ngModel)]="form.couleur" />
+
+      <label>Icône</label>
+      <input [(ngModel)]="form.icone" placeholder="fa-tags" />
+
+      <label>Ordre</label>
+      <input type="number" [(ngModel)]="form.ordre" />
+
+      <div class="checks">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.actif" />
+          Actif
+        </label>
+      </div>
+
+      <div class="actions">
+        <button (click)="modalOpen = false">Annuler</button>
+        <button class="primary" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+}

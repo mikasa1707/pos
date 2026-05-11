@@ -1,0 +1,86 @@
+<div class="admin-page">
+  <div class="head">
+    <h2>Produits / Fiches techniques</h2>
+    <button (click)="openCreate()">+ Ajouter produit</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Produit</th>
+        <th>Catégorie</th>
+        <th>Prix</th>
+        <th>Coût</th>
+        <th>Marge</th>
+        <th>Actif</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (item of items; track item.id) {
+        <tr>
+          <td>{{ item.reference }}</td>
+          <td>{{ item.nom }}</td>
+          <td>{{ item.categorie?.nom || '-' }}</td>
+          <td>{{ item.prix_vente | number }} Ar</td>
+          <td>{{ item.cout_matiere | number }} Ar</td>
+          <td>{{ item.marge | number }} Ar</td>
+          <td>{{ item.actif ? 'Oui' : 'Non' }}</td>
+          <td>
+            <button class="btn btn-primary" (click)="openEdit(item)"><i class="fa-solid fa-pen"></i></button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (modalOpen) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h3>{{ selectedId ? 'Modifier produit' : 'Ajouter produit' }}</h3>
+
+      <label>Code produit</label>
+      <input [(ngModel)]="form.reference" />
+
+      <label>Nom</label>
+      <input [(ngModel)]="form.nom" />
+
+      <label>Description</label>
+      <textarea [(ngModel)]="form.description"></textarea>
+
+      <label>Catégorie</label>
+      <select [(ngModel)]="form.categorie_id">
+        <option [ngValue]="null">Sans catégorie</option>
+        @for (cat of categories; track cat.id) {
+          <option [ngValue]="cat.id">{{ cat.nom }}</option>
+        }
+      </select>
+
+      <label>Prix vente</label>
+      <input type="number" [(ngModel)]="form.prix_vente" />
+
+      <label>Coût matière</label>
+      <input type="number" [(ngModel)]="form.cout_matiere" />
+
+      <div class="checks">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.actif" />
+          Actif
+        </label>
+
+        <label>
+          <input type="checkbox" [(ngModel)]="form.vendable" />
+          Vendable
+        </label>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-danger" (click)="modalOpen = false">Annuler</button>
+        <button class="btn btn-primary" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+}

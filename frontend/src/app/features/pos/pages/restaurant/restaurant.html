@@ -1,0 +1,144 @@
+<div class="restaurant-page">
+  <div class="header">
+    <div>
+      <h2>Restaurant</h2>
+      <p>Gestion des tables et commandes ouvertes</p>
+    </div>
+
+    @if (session) {
+      <span class="session-badge">Session #{{ session.id }}</span>
+    } @else {
+      <span class="session-badge danger">Aucune session ouverte</span>
+    }
+  </div>
+
+  <div class="layout">
+    <section class="tables-zone">
+      @for (zone of zones; track zone) {
+        <div class="zone-block">
+          <h3>{{ zone }}</h3>
+
+          <div class="tables-grid">
+            @for (table of tablesByZone(zone); track table.id) {
+              <button
+                class="table-card"
+                [class.occupied]="table.statut === 'OCCUPEE'"
+                [class.selected]="selectedTable?.id === table.id"
+                (click)="ouvrirTable(table)"
+              >
+                <strong>{{ table.nom }}</strong>
+                <span>{{ table.code }}</span>
+
+                @if (commandePourTable(table); as cmd) {
+                  <b>{{ cmd.montant_total | number }} Ar</b>
+                  <small>{{ cmd.statut }}</small>
+                } @else {
+                  <small>{{ table.statut }}</small>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <aside class="order-zone">
+      @if (!selectedCommande) {
+        <div class="empty">
+          Sélectionnez une table
+        </div>
+      } @else {
+        <div class="order-header">
+          <div>
+            <h3>{{ selectedCommande.table?.nom }}</h3>
+            <p>{{ selectedCommande.reference }}</p>
+          </div>
+
+          <span>{{ selectedCommande.statut }}</span>
+        </div>
+
+        <div class="order-lines">
+          @for (ligne of selectedCommande.lignes; track ligne.id) {
+            <div class="order-line">
+              <div>
+                <strong>{{ ligne.ficheTechnique?.nom }}</strong>
+                <small>{{ ligne.prix_unitaire | number }} Ar</small>
+              </div>
+
+              <div class="qty">
+                <button (click)="moins(ligne)">-</button>
+                <span>{{ ligne.quantite }}</span>
+                <button (click)="plus(ligne)">+</button>
+              </div>
+
+              <b>{{ ligne.montant | number }} Ar</b>
+            </div>
+          } @empty {
+            <div class="empty">Aucun produit</div>
+          }
+        </div>
+
+        <input
+          class="search"
+          type="text"
+          placeholder="Rechercher produit..."
+          [(ngModel)]="search"
+        />
+
+        <div class="products-mini">
+          @for (produit of produitsFiltres; track produit.id) {
+            <button (click)="ajouterProduit(produit)">
+              <span>{{ produit.nom }}</span>
+              <b>{{ produit.prix_vente | number }} Ar</b>
+            </button>
+          }
+        </div>
+
+        <div class="total-box">
+          <span>Total</span>
+          <strong>{{ selectedCommande.montant_total | number }} Ar</strong>
+        </div>
+
+        <div class="actions">
+          <button (click)="envoyerCuisine()">Cuisine</button>
+          <button (click)="marquerServie()">Servie</button>
+          <button class="danger" (click)="annulerCommande()">Annuler</button>
+          <button class="pay" (click)="ouvrirPaiement()">Régler</button>
+        </div>
+      }
+    </aside>
+  </div>
+</div>
+
+@if (paymentModalOpen) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h3>Paiement table</h3>
+
+      <div class="total-box">
+        <span>Total à payer</span>
+        <strong>{{ totalCommande | number }} Ar</strong>
+      </div>
+
+      <label>Mode paiement</label>
+      <select [(ngModel)]="modePaiement">
+        <option value="ESPECE">Espèce</option>
+        <option value="MVOLA">MVola</option>
+        <option value="CARTE">Carte</option>
+      </select>
+
+      @if (modePaiement === 'MVOLA' || modePaiement === 'CARTE') {
+        <label>Référence transaction</label>
+        <input [(ngModel)]="referenceTransaction" />
+      }
+
+      <label>Montant payé</label>
+      <input type="number" [(ngModel)]="montantPaye" />
+
+      <div class="actions">
+        <button (click)="paymentModalOpen = false">Annuler</button>
+        <button class="pay" (click)="payerCommande()">Valider paiement</button>
+      </div>
+    </div>
+  </div>
+}

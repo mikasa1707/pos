@@ -1,0 +1,86 @@
+<div class="dashboard-page">
+  <h2>Dashboard ventes</h2>
+
+  @if (loading) {
+    <p>Chargement...</p>
+  } @else if (data) {
+    <div class="cards">
+      <div class="card">
+        <span>Chiffre d'affaires</span>
+        <strong>{{ data.totalVentes | number }} Ar</strong>
+      </div>
+
+      <div class="card">
+        <span>Tickets</span>
+        <strong>{{ data.totalTickets }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Espèce</span>
+        <strong>{{ data.totalEspece | number }} Ar</strong>
+      </div>
+
+      <div class="card">
+        <span>MVola</span>
+        <strong>{{ data.totalMvola | number }} Ar</strong>
+      </div>
+
+      <div class="card">
+        <span>Carte</span>
+        <strong>{{ data.totalCarte | number }} Ar</strong>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <section class="panel">
+        <h3>Top produits</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Qté</th>
+              <th>CA</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (p of data.topProduits; track p.produit) {
+              <tr>
+                <td>{{ p.produit }}</td>
+                <td>{{ p.quantite }}</td>
+                <td>{{ p.chiffre | number }} Ar</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h3>Dernières ventes</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Réf</th>
+              <th>Total</th>
+              <th>Paiement</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (v of data.dernieresVentes; track v.id) {
+              <tr>
+                <td>{{ v.reference }}</td>
+                <td>{{ v.montant_total | number }} Ar</td>
+                <td>{{ v.mode_paiement }}</td>
+                <td>{{ v.created_at | date:'dd/MM HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,47 @@
+<div class="pos-layout">
+  <aside class="sidebar">
+    <h2>POS</h2>
+
+    @if (canAccess('caisse')) {
+      <a routerLink="/pos/caisse" routerLinkActive="active">Caisse</a>
+    }
+
+    @if (canAccess('dashboard')) {
+      <a routerLink="/pos/dashboard" routerLinkActive="active">Dashboard</a>
+    }
+
+    @if (canAccess('produits')) {
+      <a routerLink="/pos/produits" routerLinkActive="active">Produits</a>
+    }
+
+    @if (canAccess('categories')) {
+      <a routerLink="/pos/categories" routerLinkActive="active">Catégories</a>
+    }
+
+    @if (canAccess('historique')) {
+      <a routerLink="/pos/historique" routerLinkActive="active">Historique</a>
+    }
+
+    @if (canAccess('cloture')) {
+      <a routerLink="/pos/cloture" routerLinkActive="active">Clôture</a>
+    }
+
+    <!-- @if (canAccess('livraisons')) {
+      <a routerLink="/pos/livraisons" routerLinkActive="active">Livraisons</a>
+    } -->
+
+    @if (canAccess('utilisateurs')) {
+      <a routerLink="/pos/utilisateurs" routerLinkActive="active">Utilisateurs</a>
+    }
+
+    <!-- @if (canAccess('restaurant')) {
+      <a routerLink="/pos/restaurant" routerLinkActive="active"> Restaurant </a>
+    } -->
+
+    <button class="logout" (click)="logout()">Déconnexion</button>
+  </aside>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

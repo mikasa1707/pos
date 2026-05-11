@@ -1,0 +1,95 @@
+<div class="cloture-page">
+  <h2>Clôture caisse</h2>
+
+  @if (!session) {
+    <div class="panel">
+      <h3>Aucune session ouverte</h3>
+
+      <button class="open-btn" (click)="sessionModalOpen = true">Ouvrir une session</button>
+    </div>
+  } @else {
+    <div class="cards">
+      <div class="card">
+        <span>Session</span>
+        <strong>#{{ session.id }}</strong>
+      </div>
+
+      <div class="card">
+        <span>Fond caisse</span>
+        <strong>{{ session.fond_caisse | number }} Ar</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <label>Montant réel en caisse</label>
+      <input type="number" [(ngModel)]="montantReel" />
+
+      <label>Commentaire</label>
+      <textarea [(ngModel)]="commentaire"></textarea>
+
+      <button (click)="cloturer()" [disabled]="loading">
+        {{ loading ? 'Clôture...' : 'Clôturer la session' }}
+      </button>
+
+      @if (session.statut === 'CLOTUREE') {
+        <div class="panel">
+          <h3>Rapport fin de journée</h3>
+
+          <button class="me-2 mb-2" (click)="chargerRapport()">Charger rapport</button>
+          <button class="me-2 mb-2" (click)="exportExcel()">Exporter Excel</button>
+
+          @if (rapport) {
+            <div class="cards">
+              <div class="card">
+                <span>Total ventes</span>
+                <strong>{{ rapport.resume.total_ventes | number }} Ar</strong>
+              </div>
+
+              <div class="card">
+                <span>Espèces</span>
+                <strong>{{ rapport.resume.total_espece | number }} Ar</strong>
+              </div>
+
+              <div class="card">
+                <span>MVola</span>
+                <strong>{{ rapport.resume.total_mvola | number }} Ar</strong>
+              </div>
+
+              <div class="card">
+                <span>Carte</span>
+                <strong>{{ rapport.resume.total_carte | number }} Ar</strong>
+              </div>
+
+              <div class="card">
+                <span>Écart</span>
+                <strong>{{ rapport.resume.ecart | number }} Ar</strong>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (sessionModalOpen) {
+  <div class="modal-backdrop">
+    <div class="modal-card session-class">
+      <h3>Ouvrir une session</h3>
+
+      <label>Poste de caisse</label>
+      <select [(ngModel)]="posteCaisseId">
+        <option [ngValue]="1">BAR</option>
+        <option [ngValue]="2">SDT</option>
+      </select>
+
+      <label>Fond de caisse</label>
+      <input type="number" [(ngModel)]="fondCaisse" />
+
+      <div class="actions">
+        <button (click)="sessionModalOpen = false">Annuler</button>
+        <button (click)="ouvrirSession()">Ouvrir</button>
+      </div>
+    </div>
+  </div>
+}

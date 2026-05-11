@@ -1,0 +1,20 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>Connexion POS</h1>
+    <p>Connectez-vous pour accéder à la caisse</p>
+
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
+
+    <label>Email</label>
+    <input type="email" [(ngModel)]="email" placeholder="admin@pos.com" />
+
+    <label>Mot de passe</label>
+    <input type="password" [(ngModel)]="mot_de_passe" placeholder="Mot de passe" />
+
+    <button (click)="login()" [disabled]="loading">
+      {{ loading ? 'Connexion...' : 'Se connecter' }}
+    </button>
+  </div>
+</div>

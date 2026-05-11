@@ -1,0 +1,67 @@
+<div class="admin-page">
+  <div class="head">
+    <h2>Utilisateurs</h2>
+    <button class="btn btn-primary" (click)="openCreate()">+ Ajouter</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Actif</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (u of items; track u.id) {
+        <tr>
+          <td>{{ u.nom }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ u.actif ? 'Oui' : 'Non' }}</td>
+          <td class="actions-cell">
+            <button class="btn btn-primary me-2" (click)="openEdit(u)" title="Modifier">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+
+            <button class="btn btn-danger" (click)="remove(u)" title="Désactiver">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (modalOpen) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h3>{{ selectedId ? 'Modifier' : 'Ajouter' }}</h3>
+
+      <label>Nom</label>
+      <input [(ngModel)]="form.nom" />
+
+      <label>Email</label>
+      <input [(ngModel)]="form.email" />
+
+      <label>Mot de passe</label>
+      <input type="password" [(ngModel)]="form.mot_de_passe" />
+
+      <label>Rôle</label>
+      <select [(ngModel)]="form.role">
+        @for (r of roles; track r) {
+          <option [value]="r">{{ r }}</option>
+        }
+      </select>
+
+      <div class="actions">
+        <button class="btn btn-primary" (click)="modalOpen = false">Annuler</button>
+        <button class="btn btn-danger" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+}
